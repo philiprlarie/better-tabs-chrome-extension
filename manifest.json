@@ -1,7 +1,7 @@
 {
   "name": "Better Open and Close Tabs",
   "description": "When closing a tab, the next tab to ativate will be to the left of current. Open new tabs to the right of current.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "background": {
     "scripts": ["background.js"],
