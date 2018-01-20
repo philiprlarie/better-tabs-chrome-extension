@@ -8,17 +8,19 @@ chrome.commands.onCommand.addListener(function(command) {
     // Sort tabs according to their index in the window.
     tabs.sort((a, b) => a.index - b.index);
     let activeIndex = tabs.findIndex(tab => tab.active);
-    let lastTabIndex = tabs.length - 1;
     let activeId = tabs[activeIndex].id;
 
     if (command === 'close-current-tab') {
       if (tabs.length === 1) {
+        // removing last tab, closes tab and opens newtab page so window does not close
         chrome.tabs.create({}, () => {
           chrome.tabs.remove(activeId);
         });
-      } else if (activeIndex === lastTabIndex) {
+      } else if (activeIndex === 0) {
+        // removing first tab in list is special case
         chrome.tabs.remove(activeId);
       } else {
+        // default case, remove current tab and activate tab to left
         chrome.tabs.update(tabs[activeIndex - 1].id, { active: true }, () => {
           chrome.tabs.remove(activeId);
         });

@@ -1,6 +1,6 @@
 {
   "name": "Better Open and Close Tabs",
-  "description": "When closing a chrome tab with the given command, the next tab to ativate will be the one to the left of the active tab being closed. When opening a new tab using the given command, it will open to the right of the currently active tab. Note: you must remap the keybindings for the default \"Close Tab\" and \"New Tab\" commands if you want to use the default keybindings that come with this extension",
+  "description": "When closing a tab, the next tab to ativate will be to the left of current. Open new tabs to the right of current.",
   "version": "1.0.0",
   "manifest_version": 2,
   "background": {
