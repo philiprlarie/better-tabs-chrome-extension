@@ -8,19 +8,18 @@ chrome.commands.onCommand.addListener(function(command) {
     // Sort tabs according to their index in the window.
     tabs.sort((a, b) => a.index - b.index);
     let activeIndex = tabs.findIndex(tab => tab.active);
-    let activeId = tabs[activeIndex].id;
+    let activeTab = tabs[activeIndex];
+    let activeId = activeTab.id;
 
     if (command === 'close-current-tab') {
-      if (tabs.length === 1) {
-        // removing last tab, closes tab and opens newtab page so window does not close
-        chrome.tabs.create({}, () => {
-          chrome.tabs.remove(activeId);
-        });
-      } else if (activeIndex === 0) {
-        // removing first tab in list is special case
+      if (activeTab.pinned) {
+        return;
+      }
+
+      if (activeIndex === 0) {
         chrome.tabs.remove(activeId);
       } else {
-        // default case, remove current tab and activate tab to left
+        // remove current tab and activate tab to left
         chrome.tabs.update(tabs[activeIndex - 1].id, { active: true }, () => {
           chrome.tabs.remove(activeId);
         });
@@ -31,3 +30,55 @@ chrome.commands.onCommand.addListener(function(command) {
     }
   });
 });
+
+chrome.windows.onCreated.addListener(function(window) {
+  chrome.windows.getAll(function(windows) {
+    if (windows.length === 1) {
+      chrome.tabs.query({ windowId: window.id }, function(tabs) {
+        chrome.storage.sync.get(['preferredPinnedUrl'], function({
+          preferredPinnedUrl
+        }) {
+          if (!preferredPinnedUrl) {
+            return;
+          }
+
+          const isPreferredTabAlreadyPinned = tabs.some(tab => {
+            return (
+              tab.pinned &&
+              ((tab.url && tab.url.match(preferredPinnedUrl)) ||
+                (tab.pendingUrl && tab.pendingUrl.match(preferredPinnedUrl)))
+            );
+          });
+
+          if (!isPreferredTabAlreadyPinned) {
+            chrome.tabs.create(
+              {
+                windowId: window.id,
+                url: preferredPinnedUrl,
+                pinned: true
+              },
+              closeAllNewTabs
+            );
+          } else {
+            closeAllNewTabs();
+          }
+        });
+      });
+    }
+  });
+});
+
+function closeAllNewTabs() {
+  chrome.tabs.query({}, function(tabs) {
+    tabs
+      .filter(tab => {
+        return (
+          tab.pendingUrl === 'chrome://newtab/' ||
+          tab.url === 'chrome://newtab/'
+        );
+      })
+      .forEach(newTab => {
+        chrome.tabs.remove(newTab.id);
+      });
+  });
+}

@@ -3,10 +3,15 @@
   "description": "When closing a tab, the next tab to ativate will be to the left of current. Open new tabs to the right of current.",
   "version": "1.0.1",
   "manifest_version": 2,
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
   "background": {
     "scripts": ["background.js"],
     "persistent": false
   },
+  "options_page": "options.html",
   "browser_action": {
     "default_icon": "icon96.png",
     "default_title": "Press Command+W to close and Command+T to open tabs"
