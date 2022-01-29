@@ -16,11 +16,16 @@ chrome.commands.onCommand.addListener(function(command) {
         return;
       }
 
-      if (activeIndex === 0) {
+      if (tabs.length === 1) {
         chrome.tabs.remove(activeId);
-      } else {
-        // remove current tab and activate tab to left
+      } else if (activeIndex === tabs.length - 1) {
+        // active tab is right-most: remove current tab and activate tab to left
         chrome.tabs.update(tabs[activeIndex - 1].id, { active: true }, () => {
+          chrome.tabs.remove(activeId);
+        });
+      } else {
+        // remove current tab and activate tab to right
+        chrome.tabs.update(tabs[activeIndex + 1].id, { active: true }, () => {
           chrome.tabs.remove(activeId);
         });
       }
@@ -42,23 +47,21 @@ chrome.windows.onCreated.addListener(function(window) {
             return;
           }
 
-          const isPreferredTabAlreadyPinned = tabs.some(tab => {
-            return (
-              tab.pinned &&
-              ((tab.url && tab.url.match(preferredPinnedUrl)) ||
-                (tab.pendingUrl && tab.pendingUrl.match(preferredPinnedUrl)))
-            );
-          });
+          const tabAlreadyPinned = tabs.some(tab => tab.pinned);
 
-          if (!isPreferredTabAlreadyPinned) {
-            chrome.tabs.create(
-              {
-                windowId: window.id,
-                url: preferredPinnedUrl,
-                pinned: true
-              },
-              closeAllNewTabs
-            );
+          if (!tabAlreadyPinned) {
+            const urlsToPin = preferredPinnedUrl.split(',');
+
+            urlsToPin.forEach(url => {
+              chrome.tabs.create(
+                {
+                  windowId: window.id,
+                  url,
+                  pinned: true
+                },
+                closeAllNewTabs
+              );
+            });
           } else {
             closeAllNewTabs();
           }
