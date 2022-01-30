@@ -1,7 +1,7 @@
 {
   "name": "Better Open and Close Tabs",
-  "description": "When closing a tab, the next tab to ativate will be to the left of current. Open new tabs to the right of current.",
-  "version": "1.0.1",
+  "description": "Don't close pinned tabs on cmd-W. Open and close tabs in predictable way.",
+  "version": "1.0.2",
   "manifest_version": 2,
   "permissions": [
     "storage",
@@ -22,7 +22,7 @@
         "default": "Ctrl+W",
         "mac": "Command+W"
       },
-      "description": "Close current tab, activate tab to right. Open default newtab page if last tab is closed"
+      "description": "Close current tab, activate tab to right"
     },
     "add-a-new-tab": {
       "suggested_key": {
